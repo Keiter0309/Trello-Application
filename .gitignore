@@ -1,0 +1,6 @@
+build/
+*.pyc
+
+**/.env
+**/.env.development
+**/.env.production
