@@ -27,7 +27,6 @@ export interface IUser {
   updatedBy: string;
   deletedBy: string;
 
-
-  resetPasswordToken?: string;
+  resetPasswordToken?: Number;
   resetTokenExpired?: string;
 }

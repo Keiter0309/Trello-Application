@@ -10,6 +10,9 @@ import jwt from "jsonwebtoken";
 import { clearCookies, cookies } from "../utils/cookie.utils";
 import { JwtPayload } from "../interfaces/jwt.interface";
 import dotenv from "dotenv";
+import { sendMail } from "../utils/mail.utils";
+import { SendMailTemplates } from "../constants/sendMails";
+import { otp } from "../utils/otp.utils";
 dotenv.config();
 
 export class AuthServices {
@@ -106,7 +109,7 @@ export class AuthServices {
         data: existingUser,
       });
     } catch (err: any) {
-      return res.status(500).json("Error while logging in");
+      return res.status(500).json(`Error while logging in: ${err.message}`);
     }
   }
 
@@ -166,6 +169,46 @@ export class AuthServices {
       });
     } catch (err: any) {
       return res.status(500).json("Error while changing password");
+    }
+  }
+
+  public async forgotPassword(req: Request, res: Response) {
+    const { email } = req.body;
+    try {
+      const existingUser = await User.findOne({ email });
+      if (!existingUser) {
+        return res.status(404).json({
+          status_code: 404,
+          message: "User not found",
+        });
+      }
+
+      // Send email
+      const otpCode = otp();
+
+      // Save the otp to the user's data
+      existingUser.resetPasswordToken = otpCode;
+
+      // Send OTP to the email
+      const mailOptions = SendMailTemplates.MAIL_FORGOT_PASSWORD(
+        existingUser.firstName,
+        otpCode
+      );
+      await sendMail(
+        email,
+        mailOptions.subject,
+        mailOptions.text,
+        mailOptions.html
+      );
+
+      return res.status(200).json({
+        status_code: 200,
+        message: "Email sent successfully",
+      });
+    } catch (err: any) {
+      return res
+        .status(500)
+        .json(`Error while forgotting password ${err.message}`);
     }
   }
 }
