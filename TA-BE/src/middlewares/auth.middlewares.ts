@@ -16,13 +16,14 @@ export const authenticateToken = (
   req: Request & { user?: JwtPayload },
   res: Response,
   next: NextFunction
-) => {
+): void => {
   const token = req.cookies.token || req.cookies.aToken;
 
   if (!token) {
-    return res.status(401).json({
+    res.status(401).json({
       message: "Access denied. No token provided.",
     });
+    return;
   }
 
   try {
@@ -31,9 +32,10 @@ export const authenticateToken = (
     next();
   } catch (err) {
     console.error("Token verification error:", err);
-    return res.status(400).json({
+    res.status(400).json({
       message: "Invalid token",
     });
+    return;
   }
 };
 

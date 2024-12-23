@@ -8,7 +8,12 @@ const userSchema = new Schema<IUser>(
     username: { type: String, required: true },
     password: { type: String, required: true },
     confirmPasswd: { type: String, required: true },
-    role: { type: String },
+    role: { type: String, default: "user" },
+    resetPasswordToken: { type: String, default: "" },
+    resetTokenExpired: { type: String, default: "" },
+    deletedAt: { type: Date, default: null },
+    updatedBy: { type: String, default: "" },
+    deletedBy: { type: String, default: "" },
   },
   {
     timestamps: true,

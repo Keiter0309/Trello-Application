@@ -13,6 +13,7 @@ import dotenv from "dotenv";
 import { sendMail } from "../utils/mail.utils";
 import { SendMailTemplates } from "../constants/sendMails";
 import { otp } from "../utils/otp.utils";
+import { generateToken } from "../utils/jwt.utils";
 dotenv.config();
 
 export class AuthServices {
@@ -90,15 +91,13 @@ export class AuthServices {
         return res.status(400).json("Invalid password");
       }
 
-      const token = jwt.sign(
-        {
-          id: existingUser._id,
-          email: existingUser.email,
-          role: existingUser.role,
-        },
-        process.env.JWT_SECRET!,
-        { expiresIn: "1h" }
-      );
+      const payload = {
+        id: existingUser.id,
+        email: existingUser.email,
+        role: existingUser.role,
+      };
+
+      const token = generateToken(payload);
 
       // Set cookies
       cookies(req, res, next, token);
@@ -185,9 +184,13 @@ export class AuthServices {
 
       // Send email
       const otpCode = otp();
+      const otpExpired = new Date(Date.now() + 60000).toISOString();
 
       // Save the otp to the user's data
-      existingUser.resetPasswordToken = otpCode;
+      existingUser.resetPasswordToken = String(otpCode);
+      existingUser.resetTokenExpired = otpExpired;
+
+      await existingUser.save();
 
       // Send OTP to the email
       const mailOptions = SendMailTemplates.MAIL_FORGOT_PASSWORD(
@@ -209,6 +212,65 @@ export class AuthServices {
       return res
         .status(500)
         .json(`Error while forgotting password ${err.message}`);
+    }
+  }
+
+  public async resetPassword(req: Request, res: Response) {
+    const { otp, newPasswd, confirmPasswd } = req.body;
+
+    try {
+      const existingUser = await User.findOne({
+        resetPasswordToken: otp,
+      });
+
+      if (!existingUser) {
+        return res.status(404).json({
+          status_code: 404,
+          message: "User not found",
+        });
+      }
+
+      const tokenExpired = new Date(existingUser.resetTokenExpired!).getTime();
+      const currentTime = new Date().getTime();
+
+      if (currentTime > tokenExpired) {
+        return res.status(400).json({
+          status_code: 400,
+          message: "OTP has expired",
+        });
+      }
+
+      if (newPasswd !== confirmPasswd) {
+        return res.status(400).json({
+          status_code: 400,
+          message: "Password does not match",
+        });
+      }
+
+      const hashedPassword = await argon.hash(newPasswd);
+      existingUser.password = hashedPassword;
+      existingUser.resetPasswordToken = "";
+      await existingUser.save();
+
+      // Send email
+      const mailOptions = SendMailTemplates.MAIL_RESET_PASSWORD(
+        existingUser.firstName
+      );
+      await sendMail(
+        existingUser.email,
+        mailOptions.subject,
+        mailOptions.text,
+        mailOptions.html
+      );
+
+      return res.status(200).json({
+        status_code: 200,
+        message: "Password reset successfully",
+      });
+    } catch (err: any) {
+      return res
+        .status(500)
+        .json(`Error while resetting password ${err.message}`);
     }
   }
 }

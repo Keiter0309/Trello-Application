@@ -50,6 +50,14 @@ export class AuthController {
     }
   };
 
+  public resetPassword = async (req: Request, res: Response) => {
+    try {
+      await this.authService.resetPassword(req, res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   public me = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.authService.me(req as Request & { user: JwtPayload }, res);
