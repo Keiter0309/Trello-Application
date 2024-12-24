@@ -65,4 +65,15 @@ export class AuthController {
       console.error(error);
     }
   };
+
+  public checkAuth = async (req: Request, res: Response) => {
+    try {
+      await this.authService.checkAuth(
+        req as Request & { user: JwtPayload },
+        res
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
 }

@@ -124,7 +124,9 @@ export class AuthServices {
 
   public async me(req: Request & { user: JwtPayload }, res: Response) {
     try {
-      const user = await User.findById(req.user.id).select("-password");
+      const user = await User.findById(req.user.id)
+        .select("-password")
+        .select("-confirmPasswd");
       return res.status(200).json({
         status_code: 200,
         message: "User fetched successfully",
@@ -272,5 +274,16 @@ export class AuthServices {
         .status(500)
         .json(`Error while resetting password ${err.message}`);
     }
+  }
+
+  public async checkAuth(req: Request & { user: JwtPayload }, res: Response) {
+    const user = await User.findById(req.user.id)
+      .select("-password")
+      .select("-confirmPasswd");
+    return res.status(200).json({
+      status_code: 200,
+      message: "Authenticated",
+      data: user,
+    });
   }
 }

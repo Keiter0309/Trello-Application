@@ -1,6 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { roles } from "../role";
 import { JwtPayload } from "../interfaces/jwt.interface";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
+const secretKey = process.env.JWT_SECRET as string;
+
 export const checkPermission = (requiredPermissions: string[]) => {
   return (
     req: Request & { user?: JwtPayload },
@@ -8,8 +14,22 @@ export const checkPermission = (requiredPermissions: string[]) => {
     next: NextFunction
   ): void => {
     try {
+      const token = req.cookies?.token || req.cookies?.aToken;
+      if (!token) {
+        res.status(403).json({ message: "Role not found or invalid" });
+        return;
+      }
+
+      try {
+        const decoded = jwt.verify(token, secretKey) as JwtPayload;
+        req.user = decoded;
+      } catch (err) {
+        res.status(400).json({ message: "Invalid token" });
+        return;
+      }
+
       const userRole = req.user?.role;
-      if (!userRole || !roles[userRole]) {
+      if (!userRole) {
         res.status(403).json({ message: "Role not found or invalid" });
         return;
       }

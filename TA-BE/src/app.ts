@@ -3,11 +3,21 @@ import helmet from "helmet";
 import cors from "cors";
 import authRouter from "./routes/auth.route";
 import { EGlobal } from "./enums/global.enums";
+import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");

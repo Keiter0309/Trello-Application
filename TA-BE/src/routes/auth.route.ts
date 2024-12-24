@@ -15,7 +15,7 @@ authRouter.get("/", (req, res) => {
 
 authRouter.post(EAuth.REGISTER, authController.register);
 authRouter.post(EAuth.LOGIN, authController.login);
-authRouter.post(EAuth.LOGOUT, authenticateToken, authController.logout);
+authRouter.post(EAuth.LOGOUT, authController.logout);
 authRouter.post(
   EAuth.CHANGE_PASSWORD,
   authenticateToken,
@@ -24,8 +24,9 @@ authRouter.post(
 authRouter.post(EAuth.RESET_PASSWORD, authController.resetPassword);
 authRouter.post(EAuth.FORGOT_PASSWORD, authController.forgotPassword);
 authRouter.get(EAuth.GET_ME, authenticateToken, authController.me);
-authRouter.get("/view", checkPermission(["read"]), (req, res) => {
-  res.send("You can view this content.");
-});
+authRouter.get(EAuth.CHECK_AUTH, authenticateToken, authController.checkAuth);
 
+authRouter.get("/view", checkPermission(["read"]), (req, res) => {
+  res.send("Hello World");
+});
 export default authRouter;
