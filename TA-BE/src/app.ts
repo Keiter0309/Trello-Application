@@ -5,6 +5,7 @@ import authRouter from "./routes/auth.route";
 import { EGlobal } from "./enums/global.enums";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import messageRouter from "./routes/message.route";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use(EGlobal.API_URL, authRouter);
+app.use(EGlobal.API_URL, messageRouter)
 
 // Error handler
 app.use((err: Error, req: Request, res: Response, next: any) => {

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { LoginDto, RegisterDTO } from "../interfaces/auth.interface";
-import User from "../models/User";
+import User from "../models/user.model";
 import * as argon from "argon2";
 import {
   validateLogin,
