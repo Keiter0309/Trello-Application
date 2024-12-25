@@ -17,4 +17,5 @@ export interface AuthState {
   onlineUsers: any;
 
   checkAuth: () => void;
+  logout: () => void;
 }

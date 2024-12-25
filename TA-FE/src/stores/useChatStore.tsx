@@ -3,7 +3,8 @@ import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 import { Socket } from "socket.io-client";
 import { useAuthStore } from "./useAuthStore";
-import { IMessage, IUser } from "../interfaces/chat.interfaces";
+import { IMessage } from "../interfaces/chat.interfaces";
+import { IUser } from "../interfaces/user.interfaces";
 
 interface ChatState {
   messages: IMessage[];

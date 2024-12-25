@@ -7,10 +7,3 @@ export interface IMessage {
   createdAt: string;
   updatedAt: string;
 }
-
-export interface IUser {
-  _id: string;
-  username: string;
-  email: string;
-  avatar?: string;
-}
