@@ -6,7 +6,6 @@ import {
   validateLogin,
   validateRegister,
 } from "../validations/auth.validation";
-import jwt from "jsonwebtoken";
 import { clearCookies, cookies } from "../utils/cookie.utils";
 import { JwtPayload } from "../interfaces/jwt.interface";
 import dotenv from "dotenv";

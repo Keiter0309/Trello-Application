@@ -1,5 +1,3 @@
-import { create } from "zustand";
-
 export const THEMES = [
   "light",
   "dark",
@@ -33,19 +31,4 @@ export const THEMES = [
   "dim",
   "nord",
   "sunset",
-] as const;
-
-type Theme = (typeof THEMES)[number];
-
-interface ThemeState {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-}
-
-export const useThemeStore = create<ThemeState>((set) => ({
-  theme: (localStorage.getItem("chat-theme") as Theme) || "coffee",
-  setTheme: (theme: Theme) => {
-    localStorage.setItem("chat-theme", theme);
-    set({ theme });
-  },
-}));
+];

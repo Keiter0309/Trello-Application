@@ -1,15 +1,15 @@
-import app from "./app";
 import dotenv from "dotenv";
-import { connectDatabase } from "./configs/database";
-
 dotenv.config();
+
+import { app, server } from "./app";
+import { connectDatabase } from "./configs/database";
 
 const PORT = process.env.PORT || 3000;
 
 // Connect to database
 connectDatabase()
   .then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`🚀 Server is running at http://localhost:${PORT}`);
     });
   })

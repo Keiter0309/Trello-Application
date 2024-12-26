@@ -3,6 +3,7 @@ import { JwtPayload } from "../interfaces/jwt.interface";
 import Message from "../models/message.model";
 import User from "../models/user.model";
 import { Request, Response } from "express";
+import { getReceiverSocketId, io } from "../libs/socket";
 
 export class MessageServices {
   public async getUserForSidebar(
@@ -21,7 +22,9 @@ export class MessageServices {
 
       const filteredUsers = await User.find({
         _id: { $ne: loggedInUser },
-      }).select("-password").select("-confirmPasswd")
+      })
+        .select("-password")
+        .select("-confirmPasswd");
 
       if (filteredUsers.length === 0) {
         return res.status(200).json({
@@ -53,15 +56,19 @@ export class MessageServices {
 
       const messages = await Message.find({
         $or: [
-          { sender: myId, receiver: id },
-          { sender: id, receiver: myId },
+          { senderId: myId, receiverId: id },
+          { senderId: id, receiverId: myId },
         ],
       })
-        .populate("sender", "name")
-        .populate("receiver", "name")
+        .populate("senderId", "name")
+        .populate("receiverId", "name")
         .sort({ createdAt: 1 });
 
-      return res.status(200).json(messages);
+      return res.status(200).json({
+        status_code: 200,
+        message: "Messages fetched successfully",
+        data: messages,
+      });
     } catch (error: any) {
       console.log(`Error in getMessages: ${error.message}`);
       return res.status(500).json("Error while fetching messages");
@@ -71,20 +78,26 @@ export class MessageServices {
   public async sendMessage(req: Request & { user: JwtPayload }, res: Response) {
     try {
       const { id } = req.params;
-      const { message } = req.body;
-      const sender = req.user.id;
+      const { text } = req.body;
+      const senderId = req.user.id;
 
       const newMessage = new Message({
-        sender,
-        receiver: id,
-        message,
+        senderId,
+        receiverId: id,
+        text,
       });
 
       await newMessage.save();
 
+      const receiverSocketId = getReceiverSocketId(id);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("newMessage", newMessage);
+      }
+
       return res.status(200).json({
         status_code: 200,
         message: "Message sent successfully",
+        data: newMessage,
       });
     } catch (error: any) {
       console.log(`Error in sendMessage: ${error.message}`);

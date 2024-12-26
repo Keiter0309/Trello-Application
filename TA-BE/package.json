@@ -26,11 +26,13 @@
   },
   "dependencies": {
     "@types/helmet": "^0.0.48",
+    "@types/socket.io": "^3.0.1",
     "argon2": "^0.41.1",
     "cookie-parser": "^1.4.7",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.1",
-    "nodemailer": "^6.9.16"
+    "nodemailer": "^6.9.16",
+    "socket.io": "^4.8.1"
   }
 }

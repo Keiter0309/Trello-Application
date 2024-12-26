@@ -1,5 +1,5 @@
 export enum EMessage {
-    GET_USERS='/message/users',
-    GET_MESSAGES='/message/:id',
-    SEND_MESSAGE='/message/send/:id'
+  GET_USERS = "/messages/users",
+  GET_MESSAGES = "/messages/:id",
+  SEND_MESSAGE = "/messages/send/:id",
 }

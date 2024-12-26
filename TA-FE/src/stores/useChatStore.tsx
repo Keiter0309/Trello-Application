@@ -20,7 +20,7 @@ interface ChatState {
   }) => Promise<void>;
   subscribeToMessages: () => void;
   unsubscribeFromMessages: () => void;
-  setSelectedUser: (selectedUser: IUser) => void;
+  setSelectedUser: (user: IUser | null) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -34,7 +34,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/users");
-      set({ users: res.data });
+      set({ users: res.data.data });
+      console.log(res.data.data);
     } catch (error: any) {
       toast.error(error.response.data.message);
     } finally {
@@ -46,7 +47,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/messages/${userId}`);
-      set({ messages: res.data });
+      set({ messages: res.data.data });
     } catch (error: any) {
       toast.error(error.response.data.message);
     } finally {
@@ -92,5 +93,5 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  setSelectedUser: (selectedUser: IUser) => set({ selectedUser }),
+  setSelectedUser: (selectedUser: IUser | null) => set({ selectedUser }),
 }));
