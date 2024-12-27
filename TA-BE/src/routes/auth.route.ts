@@ -4,6 +4,7 @@ import { AuthServices } from "../services/auth.serivces";
 import { authenticateToken } from "../middlewares/auth.middlewares";
 import { EAuth } from "../enums/auth.enums";
 import { checkPermission } from "../middlewares/role.middlewares";
+import { RateLimitMiddleWare } from "../middlewares/rateLimit.middlewares";
 
 const authRouter = Router();
 const authService = new AuthServices();
@@ -14,7 +15,11 @@ authRouter.get("/", (req, res) => {
 });
 
 authRouter.post(EAuth.REGISTER, authController.register);
-authRouter.post(EAuth.LOGIN, authController.login);
+authRouter.post(
+  EAuth.LOGIN,
+  RateLimitMiddleWare.loginLimiter(),
+  authController.login
+);
 authRouter.post(EAuth.LOGOUT, authController.logout);
 authRouter.post(
   EAuth.CHANGE_PASSWORD,
